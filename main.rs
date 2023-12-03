@@ -5,20 +5,36 @@ use models::query;
 use algorithms::gyo;
 
 fn main() {
-    let my_terms = vec![
+    let r_atoms = vec![
         query::Term::Variable("x"),
-        query::Term::Constant(query::ConstantTypes::Utf8(String::from("test_utf8_const"))),
+        query::Term::Variable("y"),
+        query::Term::Variable("z"),
+    ];
+    let s_atoms = vec![
+        query::Term::Variable("a"),
+        query::Term::Variable("b"),
+        query::Term::Variable("x"),
+    ];
+    let p_atoms = vec![
+        query::Term::Variable("b"),
     ];
     let my_body = vec![
         query::Atom {
-            relation_name: String::from("R"),
-            terms: my_terms,
+            relation_name: "R",
+            terms: r_atoms,
+        },
+        query::Atom {
+            relation_name: "S",
+            terms: s_atoms,
+        },
+        query::Atom {
+            relation_name: "P",
+            terms: p_atoms,
         }
     ];
     let my_query = query::Query {
-        head: vec!["abc"],
+        head: vec!["x"],
         body: my_body
     };
-    println!("{:#?}", my_query);
-    gyo::find_ear(&my_query);
+    println!("{:#?}", gyo::gyo(&my_query));
 }
