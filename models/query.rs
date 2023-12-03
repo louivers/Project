@@ -1,24 +1,24 @@
-use arrow::datatypes::DataType;
-
-pub struct Query {
-    pub head: String,
-    pub body: Vec<Atom>,
+#[derive(Debug)]
+pub struct Query<'a> {
+    pub head: Vec<&'a str>,
+    pub body: Vec<Atom<'a>>,
 }
 
-#[derive(Debug)]
-pub struct Atom {
+#[derive(Debug, PartialEq)]
+pub struct Atom<'a> {
     pub relation_name: String,
-    pub terms: Vec<Term>,
+    pub terms: Vec<Term<'a>>,
 }
 
-#[derive(Debug)]
-pub enum Term {
-    Variable(String),
-    Constant(DataType),
+#[derive(Debug, PartialEq)]
+pub enum ConstantTypes {
+    Utf8(String),
+    Float(f64),
+    Int(i32),
 }
 
-pub fn display_query(q: Query) {
-    let head = q.head;
-    let body = q.body;
-    println!("Answer({head}): {:?}", body);
+#[derive(Debug, PartialEq)]
+pub enum Term<'a> {
+    Variable(&'a str),
+    Constant(ConstantTypes),
 }

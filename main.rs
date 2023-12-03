@@ -1,20 +1,24 @@
 mod models;
+mod algorithms;
 
-pub use models::query;
+use models::query;
+use algorithms::gyo;
 
 fn main() {
     let my_terms = vec![
-        query::Term::Variable(String::from("test_constant")),
+        query::Term::Variable("x"),
+        query::Term::Constant(query::ConstantTypes::Utf8(String::from("test_utf8_const"))),
     ];
     let my_body = vec![
         query::Atom {
-            relation_name: String::from("test_relation_name"),
+            relation_name: String::from("R"),
             terms: my_terms,
         }
     ];
     let my_query = query::Query {
-        head: String::from("test_head"),
+        head: vec!["abc"],
         body: my_body
     };
-    query::display_query(my_query);
+    println!("{:#?}", my_query);
+    gyo::find_ear(&my_query);
 }
