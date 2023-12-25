@@ -1,10 +1,11 @@
-mod models;
 mod algorithms;
+mod models;
 
-use models::query;
 use algorithms::gyo;
+use models::query;
 
 fn main() {
+    // make vectors of variables which is a type of Term
     let r_atoms = vec![
         query::Term::Variable(String::from("x")),
         query::Term::Variable(String::from("y")),
@@ -30,7 +31,7 @@ fn main() {
         query::Atom {
             relation_name: String::from("P"),
             terms: p_atoms,
-        }
+        },
     ];
     let my_query = query::Query {
         head: vec![String::from("x")],
