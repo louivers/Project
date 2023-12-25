@@ -1,13 +1,13 @@
 #[derive(Debug)]
-pub struct Query<'a> {
-    pub head: Vec<&'a str>,
-    pub body: Vec<Atom<'a>>,
+pub struct Query {
+    pub head: Vec<String>,
+    pub body: Vec<Atom>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Atom<'a> {
-    pub relation_name: &'a str,
-    pub terms: Vec<Term<'a>>,
+pub struct Atom {
+    pub relation_name: String,
+    pub terms: Vec<Term>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -20,7 +20,25 @@ pub enum ConstantTypes {
 
 #[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
-pub enum Term<'a> {
-    Variable(&'a str),
+pub enum Term {
+    Variable(String),
     Constant(ConstantTypes),
+}
+
+impl Atom {
+    pub fn same_vars(&self, other: &Atom) -> bool {
+        let mut vars1 = Vec::new();
+        let mut vars2 = Vec::new();
+        for term in &self.terms {
+            if let Term::Variable(var) = term {
+                vars1.push(var.to_owned());
+            }
+        }
+        for term in &other.terms {
+            if let Term::Variable(var) = term {
+                vars2.push(var.to_owned());
+            }
+        }
+        return vars1 == vars2;
+    }
 }
