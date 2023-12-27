@@ -42,3 +42,9 @@ impl Atom {
         return vars1 == vars2;
     }
 }
+
+#[allow(dead_code)]
+pub struct SemiJoin {
+    pub left: Atom,
+    pub right: Atom,
+}

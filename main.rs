@@ -1,43 +1,12 @@
 mod algorithms;
 mod models;
-
-use algorithms::gyo;
-use models::query;
+mod examples_testing;
+#[allow(unused_imports)]
+use crate::examples_testing::order_test::order_test;
+#[allow(unused_imports)]
+use crate::examples_testing::join_tree_test::join_tree_test;
 
 fn main() {
-    // make vectors of variables which is a type of Term
-    let r_atoms = vec![
-        query::Term::Variable(String::from("x")),
-        query::Term::Variable(String::from("y")),
-        query::Term::Variable(String::from("z")),
-    ];
-    let s_atoms = vec![
-        query::Term::Variable(String::from("a")),
-        query::Term::Variable(String::from("b")),
-        query::Term::Variable(String::from("x")),
-    ];
-    let p_atoms = vec![
-        query::Term::Variable(String::from("b")),
-    ];
-    let my_body = vec![
-        query::Atom {
-            relation_name: String::from("R"),
-            terms: r_atoms,
-        },
-        query::Atom {
-            relation_name: String::from("S"),
-            terms: s_atoms,
-        },
-        query::Atom {
-            relation_name: String::from("P"),
-            terms: p_atoms,
-        },
-    ];
-    let my_query = query::Query {
-        head: vec![String::from("x")],
-        body: my_body
-    };
-    // println!("{:#?}", gyo::gyo(&my_query));
-    println!("{:#?}", gyo::generate_join_tree(&my_query.body));
-
+    //join_tree_test();
+    order_test();
 }

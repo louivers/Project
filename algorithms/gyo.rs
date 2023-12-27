@@ -1,5 +1,5 @@
-use petgraph::{Graph, Directed};
-use crate::models::query::{Atom, Query, Term};
+use crate::models::query::{Atom, Query, SemiJoin, Term};
+use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
 // Returns true if the given query is acyclic. False otherwise.
@@ -58,7 +58,7 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
             join_tree.add_edge(idx_witness.unwrap(), idx_ear.unwrap(), 0);
             my_atoms = new_atoms;
         }
-    } 
+    }
     return Some(join_tree);
 }
 
@@ -100,17 +100,21 @@ fn find_witness<'a>(atoms: &'a Vec<Atom>, a: &Atom) -> Option<&'a Atom> {
                 }
             }
             _ => break,
-        }   
+        }
     }
     return potential_witness;
 }
 
 #[allow(dead_code)]
-pub fn find_other_atoms_with_term<'a>(atoms: &'a Vec<Atom>, from_atom: &Atom, term: &Term) -> Vec<&'a Atom> {
+pub fn find_other_atoms_with_term<'a>(
+    atoms: &'a Vec<Atom>,
+    from_atom: &Atom,
+    term: &Term,
+) -> Vec<&'a Atom> {
     let mut result = Vec::new();
     for atom in atoms {
         if atom == from_atom {
-            continue
+            continue;
         } else {
             if atom.terms.contains(&term) {
                 result.push(atom);
@@ -119,3 +123,82 @@ pub fn find_other_atoms_with_term<'a>(atoms: &'a Vec<Atom>, from_atom: &Atom, te
     }
     return result;
 }
+
+#[allow(dead_code)]
+#[allow(unused_variables)]
+#[allow(unused_mut)]
+pub fn build_full_reducer_from_tree(join_tree: &Graph<Atom, u8, Directed>) -> Vec<SemiJoin> {
+    // the full reducer is a vector of SemiJoins
+    let mut reducer = Vec::new();
+    // find a root in the join tree
+    let mut root = find_root(join_tree).unwrap();
+    // bottom up traversal of the join tree to build first semijoins of the reducer
+    post_order_apply(join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
+        // take the node from the join tree and find its parent
+        let parent = join_tree
+            .neighbors_directed(node, petgraph::Direction::Incoming)
+            .next();
+        // if the node has no parent, it is the root of the join tree 
+        // nothing needs to be added to the reducer
+        if parent == None {
+            return;
+        } else {
+            // if the node has a parent, add a semijoin to the reducer
+            // the semijoin has the node as its right child and the parent as its left child
+            let semijoin = SemiJoin{
+                right: join_tree[node].to_owned(),
+                left: join_tree[parent.unwrap()].to_owned(),
+            };
+            reducer.push(semijoin);
+        }
+    });
+    return reducer;
+}
+
+// Returns the index of the root of the given join tree.
+pub fn find_root(join_tree: &Graph<Atom, u8, Directed>) -> Option<usize> {
+    for node in join_tree.node_indices() {
+        if join_tree.neighbors_directed(node, petgraph::Direction::Incoming).count() == 0 {
+            return Some(node.index());
+        }
+    }
+    return None;
+}
+
+pub fn post_order_apply<F>(
+    join_tree: &Graph<Atom, u8, Directed>,
+    root: petgraph::graph::NodeIndex,
+    funct: &mut F)
+    where F: FnMut(&Graph<Atom, u8, Directed>, petgraph::graph::NodeIndex) {
+    let mut stack = Vec::new();
+    let mut visited = vec![false; join_tree.node_count()];
+    stack.push(root);
+    while !stack.is_empty() {
+        let node = *stack.last().unwrap();
+        if !visited[node.index()] {
+            for neighbor in join_tree.neighbors_directed(node, petgraph::Direction::Outgoing) {
+                stack.push(neighbor);
+            }
+            visited[node.index()] = true;
+        } else {
+            stack.pop();
+            funct(join_tree, node);
+        }
+    }
+}
+
+pub fn pre_order_apply<F>(
+    join_tree: &Graph<Atom, u8, Directed>,
+    root: petgraph::graph::NodeIndex,
+    funct: &mut F)
+    where F: Fn(&Graph<Atom, u8, Directed>, petgraph::graph::NodeIndex) {
+    let mut stack = Vec::new();
+    stack.push(root);
+    while stack.len() != 0 {
+        let node = stack.pop().unwrap();
+        funct(join_tree, node);
+        for neighbor in join_tree.neighbors_directed(node, petgraph::Direction::Outgoing) {
+            stack.push(neighbor);
+        }
+
+    }}

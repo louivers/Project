@@ -1,3 +1,6 @@
 /target
 assignment.pdf
 example-output.csv
+.vscode/settings.json
+.metals/metals.mv.db
+.metals/metals.log
