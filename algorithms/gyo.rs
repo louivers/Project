@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term};
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes};
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
@@ -226,3 +226,92 @@ pub fn pre_order_apply<F>(
         }
 
     }}
+
+#[allow(dead_code)]
+pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: DataBase) {
+    
+}
+
+#[allow(dead_code)]
+pub fn globally_consistent_database(database: &mut DataBase, join_tree: &Graph<Atom, u8, Directed>) {
+    let full_reducer = build_full_reducer_from_tree(join_tree);
+    for semij in full_reducer {
+
+        semijoin(&semij, database);
+    }
+}   
+
+#[allow(dead_code)]
+pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
+    // find the relation with the same name and arity as the left child of the semijoin
+    let mut left_relation = None;
+    for relation in &database.relations {
+        if relation.name == semij.left.relation_name && relation.arity == semij.left.terms.len() {
+            left_relation = Some(relation);
+        }
+    }
+    // find the relation with the same name and arity as the right child of the semijoin
+    let mut right_relation = None;
+    for relation in &database.relations {
+        if relation.name == semij.right.relation_name && relation.arity == semij.right.terms.len() {
+            right_relation = Some(relation);
+        }
+    }
+    // if one of the relations is not found, return
+    if left_relation.is_none() || right_relation.is_none() {
+        return;
+    }
+    // find indexes of common attributes of the two relations
+    let mut common_attributes = Vec::new();
+    for i in 0..left_relation.unwrap().arity {
+        for j in 0..right_relation.unwrap().arity {
+            if left_relation.unwrap().attributes[i] == right_relation.unwrap().attributes[j] {
+                common_attributes.push((i, j));
+            }
+        }
+    }
+    // if there are no common attributes, return
+    if common_attributes.len() == 0 {
+        return;
+    }
+    // perform the semijoin based on the common attributes
+    let mut new_tuples: Vec<Vec<ConstantTypes>> = Vec::new();
+
+    // for every tuple in the left relation
+    // look at every tuple in the right relation
+    // if the common attributes are equal, add the tuple to the new relation
+    // if it is not already in the new relation
+    for left_tuple in &left_relation.unwrap().tuples {
+        for right_tuple in &right_relation.unwrap().tuples {
+            let mut common = true;
+            for (i, j) in &common_attributes {
+                if left_tuple[*i] != right_tuple[*j] {
+                    common = false;
+                    break;
+                }
+            }
+            if common {
+                if !new_tuples.contains(&left_tuple) {
+                    new_tuples.push(left_tuple.clone());
+                }
+            }
+        }
+    }
+
+    // make the new relation
+    let new_left_relation = Relation{
+        name: left_relation.unwrap().name.to_owned(),
+        arity: left_relation.unwrap().arity.to_owned(),
+        attributes: left_relation.unwrap().attributes.to_owned(),
+        tuples: new_tuples,
+    };
+    // replace the old relation with the new one
+    for relation in &mut database.relations {
+        if relation.name == new_left_relation.name && relation.arity == new_left_relation.arity {
+            *relation = new_left_relation;
+            break;
+        }
+    }
+
+    
+}

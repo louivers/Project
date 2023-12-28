@@ -57,3 +57,15 @@ impl fmt::Display for SemiJoin {
         write!(f, "({} ⋈ {})", self.left.relation_name, self.right.relation_name)
     }
 }
+
+pub struct DataBase {
+    pub relations: Vec<Relation>,
+}
+
+pub struct Relation{
+    pub name: String,
+    pub arity: usize,
+    pub attributes: Vec<String>,
+    pub tuples: Vec<Vec<ConstantTypes>>,
+
+}
