@@ -152,6 +152,30 @@ pub fn build_full_reducer_from_tree(join_tree: &Graph<Atom, u8, Directed>) -> Ve
             reducer.push(semijoin);
         }
     });
+    
+    // top down traversal of the join tree to build the rest of the reducer
+    pre_order_apply(join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
+        // take the node from the join tree and find its children
+        let children = join_tree
+            .neighbors_directed(node, petgraph::Direction::Outgoing)
+            .collect::<Vec<_>>();
+        // if the node has no children, it is a leaf of the join tree
+        // nothing needs to be added to the reducer
+        if children.len() == 0 {
+            return;
+        } else {
+            // if the node has children, add a semijoin to the reducer for each direct child
+            // the semijoin has the node as its right and the first child as its left
+            for child in children.iter() {
+                let semijoin = SemiJoin{
+                    right: join_tree[node].to_owned(),
+                    left: join_tree[*child].to_owned(),
+                };
+                reducer.push(semijoin);
+            }
+            
+        }
+    });
     return reducer;
 }
 
@@ -191,7 +215,7 @@ pub fn pre_order_apply<F>(
     join_tree: &Graph<Atom, u8, Directed>,
     root: petgraph::graph::NodeIndex,
     funct: &mut F)
-    where F: Fn(&Graph<Atom, u8, Directed>, petgraph::graph::NodeIndex) {
+    where F: FnMut(&Graph<Atom, u8, Directed>, petgraph::graph::NodeIndex) {
     let mut stack = Vec::new();
     stack.push(root);
     while stack.len() != 0 {
