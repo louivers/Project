@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes};
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin};
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 

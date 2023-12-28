@@ -51,8 +51,18 @@ pub struct SemiJoin {
     pub right: Atom,
 }
 
-// make a good print for SemiJoin
+pub struct NaturalJoin {
+    pub left: Atom,
+    pub right: Atom,
+}
+
 impl fmt::Display for SemiJoin {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({} ⋉ {})", self.left.relation_name, self.right.relation_name)
+    }
+}
+
+impl fmt::Display for NaturalJoin {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({} ⋈ {})", self.left.relation_name, self.right.relation_name)
     }
@@ -60,6 +70,28 @@ impl fmt::Display for SemiJoin {
 
 pub struct DataBase {
     pub relations: Vec<Relation>,
+}
+
+impl fmt::Display for DataBase {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for relation in &self.relations {
+            write!(f, "{}\n", relation.name)?;
+            // write attributes
+            write!(f, "\t")?;
+            for attribute in &relation.attributes {
+                write!(f, "{} ", attribute)?;
+            }
+            write!(f, "\n")?;
+            for tuple in &relation.tuples {
+                write!(f, "\t")?;
+                for term in tuple {
+                    write!(f, "{:?} ", term)?;
+                }
+                write!(f, "\n")?;
+            }
+        }
+        Ok(())
+    }
 }
 
 pub struct Relation{
