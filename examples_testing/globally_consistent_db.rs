@@ -1,11 +1,13 @@
 use crate::models::query::{Relation, ConstantTypes, self};
-use crate::algorithms::gyo::{generate_join_tree, gyo};
+use crate::algorithms::gyo::{generate_join_tree, gyo, build_full_reducer_from_tree, find_root};
 use crate::algorithms::gyo::globally_consistent_database;
 
+#[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i32>) -> Vec<ConstantTypes> {
     ints.into_iter().map(ConstantTypes::Int).collect()
 }
 
+#[allow(dead_code)]
 pub fn globally_consistent_db() {
     // build a database based on slides of Zeyuan Hu
     let r1 = Relation {
@@ -93,7 +95,24 @@ pub fn globally_consistent_db() {
     // make a join tree
     let join_tree = generate_join_tree(&my_query.body).unwrap();
 
+    let root = find_root(&join_tree).unwrap();
+
+    print!("root: ");
+    println!("{}", root);
+
+    print!("join tree: ");
+    println!("{:#?}", join_tree);
+
+    let full_reducer = build_full_reducer_from_tree(&join_tree);
+
+    //print the full reducer using the Display trait of SemiJoin
+    for semijoin in full_reducer {
+        println!("{}", semijoin);
+    }
+
     // make the database globally consistent
     globally_consistent_database(&mut db, &join_tree);
+
+    print!("{}", db)
 
 }

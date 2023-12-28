@@ -1,8 +1,8 @@
 mod algorithms;
 mod models;
 mod examples_testing;
+#[allow(unused_imports)]
 use examples_testing::globally_consistent_db::globally_consistent_db;
-
 #[allow(unused_imports)]
 use crate::examples_testing::order_test::order_test;
 #[allow(unused_imports)]

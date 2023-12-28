@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin};
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, };
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
@@ -29,7 +29,7 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
 
     let idx_ear = join_tree.add_node(first_ear.0.unwrap().to_owned());
     let idx_witness = join_tree.add_node(first_ear.1.unwrap().to_owned());
-    join_tree.add_edge(idx_witness, idx_ear, 0);
+    join_tree.add_edge(idx_ear, idx_witness, 0);
     while my_atoms.len() != 0 {
         let ear = find_ear(&my_atoms);
         println!("ear: {:?}", ear);
@@ -55,7 +55,7 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
             if idx_witness == None {
                 idx_witness = Some(join_tree.add_node(ear.1.unwrap().to_owned()));
             }
-            join_tree.add_edge(idx_witness.unwrap(), idx_ear.unwrap(), 0);
+            join_tree.add_edge(idx_ear.unwrap(), idx_witness.unwrap(), 0);
             my_atoms = new_atoms;
         }
     }
@@ -67,7 +67,8 @@ fn remove_atom(atoms: &Vec<Atom>, atom: &Atom) -> Vec<Atom> {
     return new_atoms.to_vec();
 }
 
-pub fn find_ear(atoms: &Vec<Atom>) -> (Option<&Atom>, Option<&Atom>) {
+#[allow(dead_code)]
+pub fn find_ear_old(atoms: &Vec<Atom>) -> (Option<&Atom>, Option<&Atom>) {
     if atoms.len() == 1 {
         return (Some(&atoms[0]), None);
     }
@@ -82,7 +83,6 @@ pub fn find_ear(atoms: &Vec<Atom>) -> (Option<&Atom>, Option<&Atom>) {
     return (None, None);
 }
 
-#[allow(dead_code)]
 fn find_witness<'a>(atoms: &'a Vec<Atom>, a: &Atom) -> Option<&'a Atom> {
     let mut potential_witness: Option<&Atom> = None;
     for term in &a.terms {
@@ -122,6 +122,74 @@ pub fn find_other_atoms_with_term<'a>(
         }
     }
     return result;
+}
+
+pub fn exclusive_term(atoms: &Vec<Atom>, a: &Atom, term: &Term) -> bool {
+    let mut exclusive = true;
+    for atom in atoms {
+        if atom == a {
+            continue;
+        }
+        if atom.terms.contains(&term) {
+            exclusive = false;
+            break;
+        }
+    }
+    return exclusive;
+}
+
+pub fn find_ear(atoms: &Vec<Atom>) -> (Option<&Atom>, Option<&Atom>) {
+    // if there is only one atom, it is an ear
+    if atoms.len() == 1 {
+        return (Some(&atoms[0]), None);
+    }
+    // an atom is an ear if
+    // 1 : all vertices of the hyperedge are exclusive to that hyperedge
+    for atom in atoms {
+        let mut exclusive = true;
+        for term in &atom.terms {
+            if !exclusive_term(atoms, atom, term) {
+                exclusive = false;
+                break;
+            }
+        }
+        if exclusive {
+            return (Some(atom), None);
+        }
+    }
+    // 2 : there is a witness for that atom
+    for atom in atoms {
+        let witness = find_witness_new(atoms, atom);
+        if witness == None {
+            continue;
+        } else {
+            return (Some(atom), witness);
+        }
+    }
+    return (None, None);
+}
+
+pub fn find_witness_new<'a>(atoms: &'a Vec<Atom>, a: &Atom) -> Option<&'a Atom> {
+    for potential_witness in atoms {
+        let mut is_witness = true;
+        if potential_witness == a {
+            continue;
+        } else {
+            for term in &a.terms {
+                // every term of the atom is either exclusive to the atom 
+                // or it is also in the witness
+                if !exclusive_term(atoms, a, term) && !potential_witness.terms.contains(&term){
+                    is_witness = false;
+                    break;
+                }
+                // or it is also in the witness
+            }
+        }
+        if is_witness {
+           return Some(potential_witness);
+        }
+    }
+    return None;
 }
 
 #[allow(dead_code)]
@@ -228,6 +296,7 @@ pub fn pre_order_apply<F>(
     }}
 
 #[allow(dead_code)]
+#[allow(unused_variables)]
 pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: DataBase) {
     
 }
