@@ -1,9 +1,8 @@
 use crate::models::query::{Atom, Term};
-use crate::algorithms::gyo::{generate_join_tree, find_root, pre_order_apply, post_order_apply};
-use petgraph::graph::NodeIndex;
+use crate::algorithms::gyo::{generate_join_tree, build_full_reducer_from_tree};
 
 #[allow(dead_code)]
-pub fn order_test() {
+pub fn full_reducer_test() {
     let r_atoms = vec![
         Term::Variable(String::from("x")),
         Term::Variable(String::from("y")),
@@ -34,12 +33,10 @@ pub fn order_test() {
         body: my_body,
     };
     let join_tree = generate_join_tree(&my_query.body).unwrap();
-    let root = find_root(&join_tree).unwrap();
     
-    post_order_apply(&join_tree, NodeIndex::new(root), &mut |join_tree, node| {
-        println!("post order: {:?}", join_tree[node]);
-    });
-    pre_order_apply(&join_tree, NodeIndex::new(root), &mut |join_tree, node| {
-        println!("pre order: {:?}", join_tree[node]);
-    });
+    let full_reducer = build_full_reducer_from_tree(&join_tree);
+    //print the full reducer using the Display trait of SemiJoin
+    for semijoin in full_reducer {
+        println!("{}", semijoin);
+    }
 }

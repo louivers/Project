@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug)]
 pub struct Query {
     pub head: Vec<String>,
@@ -47,4 +49,11 @@ impl Atom {
 pub struct SemiJoin {
     pub left: Atom,
     pub right: Atom,
+}
+
+// make a good print for SemiJoin
+impl fmt::Display for SemiJoin {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({} ⋈ {})", self.left.relation_name, self.right.relation_name)
+    }
 }
