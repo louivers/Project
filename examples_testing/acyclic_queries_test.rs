@@ -279,6 +279,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         let mut evaluation_res: Option<Relation> = None;
         if gyo_res {
             evaluation_res = Some(yannakakis(query.clone(), &mut db));
+            println!("{:#?}", evaluation_res);
         }
         let is_acyclic = match gyo_res {
             true => 1,
