@@ -450,21 +450,37 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
         earlyprojection_relation_names.push(atom.relation_name.to_owned());
     }
 
-    // total projection
-    let mut old_attributes: Vec<String> = Vec::new();
-    let mut new_attributes: Vec<String> = Vec::new();
-    // add the attributes of the left relation to the old relation attributes
-    old_attributes.extend(left_relation.unwrap().attributes.iter().cloned());
+    // compute total projection
+    // the totalpojection is F ∪ (X ∩ E) for (E ⋈ F) with F parent of E
+    let mut totalprojection: Vec<String> = Vec::new();
 
-    // add the attributes of the right relation to the new relation attributes
+    // what is added by the intersection part
+    let mut extraprojection: Vec<String> = Vec::new();
+    let mut extraprojectionindex: Vec<usize> = Vec::new();
+
+    // add the attributes of the right relation to the total projection
     for attribute in &right_relation.unwrap().attributes {
-        if !old_attributes.contains(&attribute) && 
-           earlyprojection_relation_names.contains(&attribute) {
-            new_attributes.push(attribute.to_owned());
+        totalprojection.push(attribute.to_owned());
+    }
+    // add the intersection of the early projection and the left relation to the total projection
+    for attribute in &left_relation.unwrap().attributes {
+        if earlyprojection_relation_names.contains(&naturaljoin.left.relation_name) {
+            if !totalprojection.contains(&attribute.to_owned()) {
+                totalprojection.push(attribute.to_owned());
+                extraprojection.push(attribute.to_owned());
+            }
         }
     }
-    // if the new relation has the same attributes as the old one, nothing changes
-    if old_attributes.len() == new_attributes.len() {
+    // get the extraprojection indexes
+    for attribute in &extraprojection {
+        for i in 0..left_relation.unwrap().attributes.len() {
+            if attribute == &left_relation.unwrap().attributes[i] {
+                extraprojectionindex.push(i);
+            }
+        }
+    }
+    // there are no extra attributes to add, return
+    if extraprojection.len() == 0 {
         return;
     }
     // make the new relation
@@ -480,16 +496,31 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
             }
             if common {
                 let mut new_tuple = Vec::new();
-                // add the old attributes of the left relation to the new tuple
-                for attribute in &left_relation.unwrap().attributes {
-                    new_tuple.push(left_tuple[old_attributes.iter().position(|x| x == attribute).unwrap()].to_owned());
+                // add the attributes of the right relation to the new relation
+                for attribute in right_tuple {
+                    new_tuple.push(attribute.to_owned());
                 }
-                // add the new attributes of the right relation to the new tuple
-                for attribute in &new_attributes {
-                    new_tuple.push(right_tuple[right_relation.unwrap().attributes.iter().position(|x| x == attribute).unwrap()].to_owned());
+                // add the extra projection to the new relation
+                for i in &extraprojectionindex {
+                    new_tuple.push(left_tuple[*i].to_owned());
                 }
+                // add the new tuple to the new relation
                 new_tuples.push(new_tuple);
             }
+        }
+    }
+    // make the new relation
+    let new_relation = Relation{
+        name: right_relation.unwrap().name.to_owned(),
+        arity: totalprojection.len(),
+        attributes: totalprojection,
+        tuples: new_tuples,
+    };
+    // replace the old relation with the new one
+    for relation in &mut database.relations {
+        if relation.name == new_relation.name {
+            *relation = new_relation;
+            break;
         }
     }
 
