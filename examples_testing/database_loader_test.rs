@@ -1,5 +1,6 @@
 use crate::{util::loading::read_data, models::query::DataBase};
 
+#[allow(dead_code)]
 pub fn loader_test() {
     let beers = read_data(String::from("data/beers.csv"));
     let breweries = read_data(String::from("data/breweries.csv"));

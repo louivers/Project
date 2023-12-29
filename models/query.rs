@@ -105,6 +105,7 @@ pub struct Relation{
 }
 
 impl Relation {
+    #[allow(dead_code)]
     pub fn from_record_batch(batch: RecordBatch, name: String) -> Self {
         let schema = batch.schema();
         let fields = schema.fields();
@@ -152,6 +153,7 @@ impl Relation {
 }
 
 impl DataBase {
+    #[allow(dead_code)]
     pub fn from_record_batches(batch: Vec<RecordBatch>, names: Vec<String>) -> DataBase {
         let mut tuples: Vec<Relation> = Vec::new();
         for i in 0..batch.len() {

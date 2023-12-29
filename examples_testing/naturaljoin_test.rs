@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::{models::query::{Relation, ConstantTypes, self, NaturalJoin}, algorithms::gyo::naturaljoin};
 
 #[allow(dead_code)]
@@ -5,121 +7,93 @@ fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
     ints.into_iter().map(ConstantTypes::Int).collect()
 }
 
+
+// db based on slides from http://infolab.stanford.edu/~ullman/cs345notes/slides01-4.pdf
 #[allow(dead_code)]
 #[allow(unused_variables)]
 pub fn naturaljoin_test() {
     let r1 = Relation {
         name: "R1".to_string(),
-        arity: 2,
-        attributes: vec!["A1".to_string(), "A2".to_string()],
-        tuples: vec![vec![1, 20], vec![1, 10], vec![4, 60]]
-            .into_iter().map(to_constant_types_vec).collect(),
-    };
-    let r2 = Relation {
-        name: "R2".to_string(),
-        arity: 3,
-        attributes: vec!["A1".to_string(), "A2".to_string(), "A3".to_string()],
-        tuples: vec![vec![1, 10, 100], vec![1, 20, 100], vec![3, 10, 300]
-            , vec![1, 40, 300], vec![2, 30, 200]]
-            .into_iter().map(to_constant_types_vec).collect(),
-    };
-    let r3 = Relation {
-        name: "R3".to_string(),
-        arity: 1,
-        attributes: vec!["A2".to_string()],
-        tuples: vec![vec![10], vec![20], vec![30]]
-            .into_iter().map(to_constant_types_vec).collect(),
-    };
-    let r4 = Relation {
-        name: "R4".to_string(),
-        arity: 3,
-        attributes: vec!["A1".to_string(), "A2".to_string(), "A4".to_string()],
-        tuples: vec![vec![1, 10, 1000], vec![1, 20, 1000], vec![1,20, 2000], 
-                     vec![2, 20,2000]]
-            .into_iter().map(to_constant_types_vec).collect(),
-    };
-    let r5 = Relation {
-        name: "R5".to_string(),
         arity: 3,
         attributes: vec!["A".to_string(), "B".to_string(), "C".to_string()],
         tuples: vec![vec![1, 3,4], vec![2,3,4]]
             .into_iter().map(to_constant_types_vec).collect(),
     };
-    let r6 = Relation {
-        name: "R6".to_string(),
+    let r2 = Relation {
+        name: "R2".to_string(),
         arity: 3,
         attributes: vec!["B".to_string(), "C".to_string(), "D".to_string()],
         tuples: vec![vec![3, 4, 5], vec![3,4,6]]
             .into_iter().map(to_constant_types_vec).collect(),
     };
-    let r7 = Relation {
-        name: "R7".to_string(),
+    let r3 = Relation {
+        name: "R3".to_string(),
         arity: 2,
         attributes: vec!["B".to_string(), "F".to_string()],
         tuples: vec![vec![3, 8], vec![3,9]]
             .into_iter().map(to_constant_types_vec).collect(),
     };
+    let r4 = Relation {
+        name: "R4".to_string(),
+        arity: 2,
+        attributes: vec!["C".to_string(), "D".to_string(), "E".to_string()],
+        tuples: vec![vec![4, 5,7], vec![4,6,7]]
+            .into_iter().map(to_constant_types_vec).collect(),
+    };
+    let r5 = Relation {
+        name: "R5".to_string(),
+        arity: 3,
+        attributes: vec!["D".to_string(), "E".to_string(), "G".to_string()],
+        tuples: vec![vec![5, 7,10], vec![5,7,11], vec![6,7,10]]
+            .into_iter().map(to_constant_types_vec).collect(),
+    };
 
     let mut db = crate::models::query::DataBase {
-        relations: vec![r5, r6, r7],
+        relations: vec![r1, r2, r3, r4, r5],
     };
 
     // make a query
     let r1_atoms = vec![
-        query::Term::Variable(String::from("A1")),
-        query::Term::Variable(String::from("A2")),
-    ];
-    let r2_atoms = vec![
-        query::Term::Variable(String::from("A1")),
-        query::Term::Variable(String::from("A2")),
-        query::Term::Variable(String::from("A3")),
-    ];
-    let r3_atoms = vec![query::Term::Variable(String::from("A2"))];
-    let r4_atoms = vec![
-        query::Term::Variable(String::from("A1")),
-        query::Term::Variable(String::from("A2")),
-        query::Term::Variable(String::from("A4")),
-    ];
-    let r5_atoms = vec![
         query::Term::Variable(String::from("A")),
         query::Term::Variable(String::from("B")),
         query::Term::Variable(String::from("C")),
     ];
-    let r6_atoms = vec![
+    let r2_atoms = vec![
         query::Term::Variable(String::from("B")),
         query::Term::Variable(String::from("C")),
         query::Term::Variable(String::from("D")),
     ];
-    let r7_atoms = vec![
+    let r3_atoms = vec![
         query::Term::Variable(String::from("B")),
         query::Term::Variable(String::from("F")),
     ];
-    let my_body = vec![
-        query::Atom {
-            relation_name: String::from("R5"),
-            terms: r5_atoms.clone(),
-        },
-        query::Atom {
-            relation_name: String::from("R6"),
-            terms: r6_atoms.clone(),
-        },
+    let r4_atoms = vec![
+        query::Term::Variable(String::from("C")),
+        query::Term::Variable(String::from("D")),
+        query::Term::Variable(String::from("E")),
     ];
-    let my_query = query::Query {
-        head: vec![String::from("A"), String::from("C")],
-        body: my_body,
-    };
+    let r5_atoms = vec![
+        query::Term::Variable(String::from("D")),
+        query::Term::Variable(String::from("E")),
+        query::Term::Variable(String::from("G")),
+    ];
 
     // make the natural join
     let join = NaturalJoin {
         left: query::Atom {
-                relation_name: String::from("R5"),
-                terms: r4_atoms.clone(),
+                relation_name: String::from("R1"),
+                terms: r1_atoms.clone(),
         },
         right: query::Atom {
-                relation_name: String::from("R6"),
+                relation_name: String::from("R2"),
                 terms: r2_atoms.clone(),
         },
     };
+
+    // attributes to project
+    let mut attributes = vec![];
+    attributes.push(String::from("A"));
+    attributes.push(String::from("G"));
 
     // print the database
     println!("Database before natural join:");
@@ -127,7 +101,7 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join, &mut db, my_query.body.clone());
+    naturaljoin(join, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");
@@ -136,12 +110,12 @@ pub fn naturaljoin_test() {
     // make the natural join
     let join2 = NaturalJoin {
         left: query::Atom {
-                relation_name: String::from("R7"),
-                terms: r4_atoms,
+                relation_name: String::from("R3"),
+                terms: r3_atoms.clone(),
         },
         right: query::Atom {
-                relation_name: String::from("R6"),
-                terms: r2_atoms,
+                relation_name: String::from("R2"),
+                terms: r2_atoms.clone(),
         },
     };
 
@@ -151,10 +125,58 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join2, &mut db, my_query.body);
+    naturaljoin(join2, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");
-    println!("{}", db)
+    println!("{}", db);
+
+    // make the natural join
+    let join3 = NaturalJoin {
+        left: query::Atom {
+                relation_name: String::from("R2"),
+                terms: r2_atoms.clone(),
+        },
+        right: query::Atom {
+                relation_name: String::from("R4"),
+                terms: r4_atoms.clone(),
+        },
+    };
+
+    // print the database
+    println!("Database before natural join:");
+    println!("{}", join3);
+    println!("{}", db);
+    
+    // try natural join
+    naturaljoin(join3, &mut db, attributes.clone());
+
+    // print the database
+    println!("Database after natural join:");
+    println!("{}", db);
+
+    // make the natural join
+    let join4 = NaturalJoin {
+        left: query::Atom {
+                relation_name: String::from("R5"),
+                terms: r5_atoms.clone(),
+        },
+        right: query::Atom {
+                relation_name: String::from("R4"),
+                terms: r4_atoms.clone(),
+        },
+    };
+
+    // print the database
+    println!("Database before natural join:");
+    println!("{}", join4);
+    println!("{}", db);
+    
+    // try natural join
+    naturaljoin(join4, &mut db, attributes.clone());
+
+    // print the database
+    println!("Database after natural join:");
+    println!("{}", db);
     
 }

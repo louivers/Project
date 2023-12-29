@@ -323,8 +323,35 @@ pub fn pre_order_apply<F>(
 
 #[allow(dead_code)]
 #[allow(unused_variables)]
-pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: DataBase) {
-    
+pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: &mut DataBase) {
+    let root = find_root(join_tree).unwrap();
+    globally_consistent_database(database, join_tree);
+    // build a full reducer style, but with joins instead of semijoins
+    let mut joins: Vec<NaturalJoin> = Vec::new();
+    // bottom up traversal of the join tree to build first joins of the reducer
+    post_order_apply(join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
+        // take the node from the join tree and find its parent
+        let parent = join_tree
+            .neighbors_directed(node, petgraph::Direction::Incoming)
+            .next();
+        // if the node has no parent, it is the root of the join tree 
+        // nothing needs to be added to the reducer
+        if parent == None {
+            return;
+        } else {
+            // if the node has a parent, add a join to the reducer
+            // the join has the node as its right child and the parent as its left child
+            let join = NaturalJoin{
+                left: join_tree[node].to_owned(),
+                right: join_tree[parent.unwrap()].to_owned(),
+            };
+            joins.push(join);
+        }
+    });
+    // print the joins
+    for join in &joins {
+        println!("{}", join);
+    }
 }
 
 #[allow(dead_code)]
@@ -411,18 +438,18 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
     
 }
 
-pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyprojections: Vec<Atom>) {
+pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, projectionattributes: Vec<String>) {
     // find the relation with the same name and arity as the left child of the naturaljoin
     let mut left_relation = None;
     for relation in &database.relations {
-        if relation.name == naturaljoin.left.relation_name && relation.arity == naturaljoin.left.terms.len() {
+        if relation.name == naturaljoin.left.relation_name {
             left_relation = Some(relation);
         }
     }
     // find the relation with the same name and arity as the right child of the naturaljoin
     let mut right_relation = None;
     for relation in &database.relations {
-        if relation.name == naturaljoin.right.relation_name && relation.arity == naturaljoin.right.terms.len() {
+        if relation.name == naturaljoin.right.relation_name {
             right_relation = Some(relation);
         }
     }
@@ -444,12 +471,6 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
         return;
     }
 
-    // get the relationnames of the early projections
-    let mut earlyprojection_relation_names = Vec::new();
-    for atom in &earlyprojections {
-        earlyprojection_relation_names.push(atom.relation_name.to_owned());
-    }
-
     // compute total projection
     // the totalpojection is F ∪ (X ∩ E) for (E ⋈ F) with F parent of E
     let mut totalprojection: Vec<String> = Vec::new();
@@ -462,10 +483,10 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
     for attribute in &right_relation.unwrap().attributes {
         totalprojection.push(attribute.to_owned());
     }
-    // add the intersection of the early projection and the left relation to the total projection
+    // add the intersection of the projectionattributes and the left relation to the total projection
     for attribute in &left_relation.unwrap().attributes {
-        if earlyprojection_relation_names.contains(&naturaljoin.left.relation_name) {
-            if !totalprojection.contains(&attribute.to_owned()) {
+        if projectionattributes.contains(attribute) {
+            if !totalprojection.contains(attribute) {
                 totalprojection.push(attribute.to_owned());
                 extraprojection.push(attribute.to_owned());
             }
