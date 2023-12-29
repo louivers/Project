@@ -75,7 +75,7 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
     
 }
 
-pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, projectionattributes: Vec<String>) {
+pub fn naturaljoin(naturaljoin: &NaturalJoin, database: &mut DataBase, projectionattributes: Vec<String>) {
     // find the relation with the same name and arity as the left child of the naturaljoin
     let mut left_relation = None;
     for relation in &database.relations {
