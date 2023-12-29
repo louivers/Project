@@ -1,6 +1,6 @@
 use crate::algorithms::gyo::gyo;
 use crate::algorithms::yannakakis::yannakakis;
-use crate::models::query::{Query, Atom, Term, ConstantTypes, DataBase};
+use crate::models::query::{Query, Atom, Term, ConstantTypes, DataBase, Relation};
 use crate::util::loading::read_data;
 use serde::Serialize;
 use csv::Writer;
@@ -276,7 +276,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
     for (i, query) in queries.iter().enumerate() {
         // Check if the query is acyclic and evaluate it.
         let gyo_res = gyo(query);
-        let mut evaluation_res: Option<bool> = None;
+        let mut evaluation_res: Option<Relation> = None;
         if gyo_res {
             evaluation_res = Some(yannakakis(query.clone(), &mut db));
         }
