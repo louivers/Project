@@ -1,6 +1,7 @@
 use std::fmt;
 
 use arrow::{record_batch::RecordBatch, array::ArrayRef, datatypes::DataType};
+use serde::de;
 
 #[derive(Debug, Clone)]
 pub struct Query {
@@ -97,6 +98,7 @@ impl fmt::Display for DataBase {
     }
 }
 
+#[derive(Debug)]
 pub struct Relation{
     pub name: String,
     pub arity: usize,

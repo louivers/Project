@@ -91,9 +91,7 @@ pub fn yannakakis(query:Query, database: &mut DataBase)  -> Relation{
 
     // select the relation that was last joined
     let mut last_relation = None;
-    println!("{:#?}", joins[joins.len()-1].right.relation_name);
     for relation in &database.relations {
-        println!("{:#?}", relation.name);
         if relation.name == joins[joins.len()-1].right.relation_name {
             last_relation = Some(relation);
         }

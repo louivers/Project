@@ -22,7 +22,6 @@ pub fn gyo_return_steps(q: &Query) -> (bool, Vec<(Atom, Atom)>) {
     while atoms.len() != 1 {
         let atoms_clone = atoms.clone();
         let ear = find_ear(&atoms_clone);
-        println!("{:#?}", ear);
         if ear.0.is_none() {
             return (false, steps);
         } else {
@@ -75,7 +74,6 @@ pub fn find_ear(atoms: &Vec<Atom>) -> (Option<&Atom>, Option<&Atom>) {
         }
         // 2 : there is a witness for that atom
         let witness = find_witness(atoms, atom);
-        println!("{:#?}", witness);
         if witness == None {
             continue;
         } else {
