@@ -19,15 +19,13 @@ struct QueryResult {
     attr_w_answer: Option<Vec<i32>>,
 }
 
-
-
-pub fn test_queries() -> Result<(), Box<dyn Error>> {
+fn make_db() -> DataBase {
     let beers = read_data(String::from("data/beers.csv"));
     let breweries = read_data(String::from("data/breweries.csv"));
     let categories = read_data(String::from("data/categories.csv"));
     let locations = read_data(String::from("data/locations.csv"));
     let styles = read_data(String::from("data/styles.csv"));
-    let mut db = match (beers, breweries, categories, locations, styles) {
+    let db = match (beers, breweries, categories, locations, styles) {
         (Ok(beers), Ok(breweries), Ok(categories), Ok(locations), Ok(styles)) => DataBase::from_record_batches(
             vec![
                 beers, 
@@ -42,6 +40,10 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 String::from("styles")]),
         _ => panic!("Error loading database."),
     };
+    return db;
+}
+
+pub fn test_queries() -> Result<(), Box<dyn Error>> {
     let test1 = Query {
         head: vec![],
         body: vec![
@@ -274,12 +276,15 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
     let file = File::create("output.csv")?;
     let mut writer = Writer::from_writer(file);
     for (i, query) in queries.iter().enumerate() {
+        let mut db = make_db();
+        println!("{}", db);
         // Check if the query is acyclic and evaluate it.
         let gyo_res = gyo(query);
         let mut evaluation_res: Option<Relation> = None;
         if gyo_res {
             evaluation_res = Some(yannakakis(query.clone(), &mut db));
-            println!("{:#?}", evaluation_res);
+            println!("{}", evaluation_res.unwrap());
+        
         }
         let is_acyclic = match gyo_res {
             true => 1,

@@ -136,8 +136,9 @@ impl Relation {
         let columns: Vec<&ArrayRef> = batch.columns().iter().collect();
         let column_data_types: Vec<DataType> = columns.iter().map(|c| c.data_type().clone()).collect();
         let num_rows = batch.num_rows();
-        let mut tuple: Vec<ConstantTypes> = Vec::new();
+        let mut tuples: Vec<Vec<ConstantTypes>> = Vec::new();
         for row_idx in 0..num_rows {            
+            let mut tuple: Vec<ConstantTypes> = Vec::new();
             for col_idx in 0..arity {
                 let col = columns[col_idx];
                 let data_type = &column_data_types[col_idx];
@@ -163,12 +164,13 @@ impl Relation {
                     _ => panic!("Unsupported data type"),
                 }
             }
+            tuples.push(tuple);
         }
         return Relation{
             name: name.clone(),
             arity: arity,
             attributes: attributes.clone(),
-            tuples: vec![tuple],
+            tuples: tuples,
         };
     }
 }

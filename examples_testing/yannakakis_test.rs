@@ -74,7 +74,7 @@ pub fn yannakakis_test() {
         query::Term::Variable(String::from("E")),
     ];
     let r5_atoms = vec![
-        query::Term::Variable(String::from("Y")),
+        query::Term::Constant(ConstantTypes::Int(6)),
         query::Term::Variable(String::from("E")),
         query::Term::Variable(String::from("G")),
     ];
