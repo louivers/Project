@@ -5,14 +5,14 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
     // find the relation with the same name and arity as the left child of the semijoin
     let mut left_relation = None;
     for relation in &database.relations {
-        if relation.name == semij.left.relation_name && relation.arity == semij.left.terms.len() {
+        if relation.name == semij.left.relation_name  {
             left_relation = Some(relation);
         }
     }
-    // find the relation with the same name and arity as the right child of the semijoin
+    // find the relation with the same name as the right child of the semijoin
     let mut right_relation = None;
     for relation in &database.relations {
-        if relation.name == semij.right.relation_name && relation.arity == semij.right.terms.len() {
+        if relation.name == semij.right.relation_name {
             right_relation = Some(relation);
         }
     }
