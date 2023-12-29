@@ -663,8 +663,10 @@ version = "0.1.0"
 dependencies = [
  "arrow",
  "arrow-csv",
+ "csv",
  "petgraph",
  "regex",
+ "serde",
 ]
 
 [[package]]

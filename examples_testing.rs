@@ -5,3 +5,4 @@ pub mod globally_consistent_db;
 pub mod naturaljoin_test;
 pub mod database_loader_test;
 pub mod yannakakis_test;
+pub mod acyclic_queries_test;

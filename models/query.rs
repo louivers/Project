@@ -2,7 +2,7 @@ use std::fmt;
 
 use arrow::{record_batch::RecordBatch, array::ArrayRef, datatypes::DataType};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Query {
     pub head: Vec<String>,
     pub body: Vec<Atom>,

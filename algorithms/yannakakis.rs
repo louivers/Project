@@ -6,7 +6,7 @@ use crate::algorithms::joins::naturaljoin;
 
 #[allow(dead_code)]
 #[allow(unused_variables)]
-pub fn yannakakis(query:Query, database: &mut DataBase) {
+pub fn yannakakis(query:Query, database: &mut DataBase) -> bool {
     // build a join tree from the query
     let join_tree = generate_join_tree(&query.body).unwrap();
 
@@ -48,5 +48,6 @@ pub fn yannakakis(query:Query, database: &mut DataBase) {
     for join in joins {
         naturaljoin(join, database, query.head.clone());
     }
+    return true;
 
 }
