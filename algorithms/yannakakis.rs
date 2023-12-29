@@ -4,9 +4,18 @@ use crate::algorithms::join_tree::generate_join_tree;
 use crate::algorithms::full_reducer::globally_consistent_database;
 use crate::algorithms::joins::naturaljoin;
 
+use super::gyo;
+
 #[allow(dead_code)]
 #[allow(unused_variables)]
 pub fn yannakakis(query:Query, database: &mut DataBase) {
+    //verify that the query is acyclic
+    let acyclic = gyo::gyo(&query);
+    // if the query is not acyclic, give an error
+    if !acyclic {
+        panic!("The query is not acyclic");
+    }
+
     // build a join tree from the query
     let join_tree = generate_join_tree(&query.body).unwrap();
 
