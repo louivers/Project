@@ -101,7 +101,7 @@ pub fn yannakakis_test() {
     ];
 
     let query = query::Query {
-        head: vec![String::from("A"), String::from("G")],
+        head: vec![String::from("Q"), String::from("G")],
         body: my_body.clone(),
     };
 
