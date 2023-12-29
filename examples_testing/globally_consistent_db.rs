@@ -3,7 +3,7 @@ use crate::algorithms::gyo::{generate_join_tree, gyo, build_full_reducer_from_tr
 use crate::algorithms::gyo::globally_consistent_database;
 
 #[allow(dead_code)]
-fn to_constant_types_vec(ints: Vec<i32>) -> Vec<ConstantTypes> {
+fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
     ints.into_iter().map(ConstantTypes::Int).collect()
 }
 

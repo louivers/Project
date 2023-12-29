@@ -1,7 +1,7 @@
 use crate::{models::query::{Relation, ConstantTypes, self}, algorithms::gyo::naturaljoin};
 
 #[allow(dead_code)]
-fn to_constant_types_vec(ints: Vec<i32>) -> Vec<ConstantTypes> {
+fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
     ints.into_iter().map(ConstantTypes::Int).collect()
 }
 
