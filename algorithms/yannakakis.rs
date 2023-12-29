@@ -100,6 +100,16 @@ pub fn yannakakis(query:Query, database: &mut DataBase)  -> Relation{
     }
 
     // project the attributes
+    //if the last relation is empty, return an empty relation
+    if last_relation.is_none() {
+        return Relation {
+            name: String::from("ANSWER"),
+            attributes: projectionattributes.clone(),
+            // return true tuple
+            tuples: vec![vec![ConstantTypes::Utf8("FALSE".to_string())]],
+            arity: projectionattributes.len(),
+        };
+    }
     let mut new_tuples: Vec<Vec<ConstantTypes>> = Vec::new();
     for tuple in &last_relation.unwrap().tuples {
         let mut new_tuple: Vec<ConstantTypes> = Vec::new();
