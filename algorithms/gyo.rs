@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, };
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, self, };
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
@@ -323,18 +323,21 @@ pub fn pre_order_apply<F>(
 
 #[allow(dead_code)]
 #[allow(unused_variables)]
-pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: &mut DataBase) {
+pub fn yannakakis(query:Query, database: &mut DataBase) {
+    // build a join tree from the query
+    let join_tree = generate_join_tree(&query.body).unwrap();
+
     // find a root in the join tree
-    let root = find_root(join_tree).unwrap();
+    let root = find_root(&join_tree).unwrap();
 
     // build a globally consistent database
-    globally_consistent_database(database, join_tree);
+    globally_consistent_database(database, &join_tree);
 
     // build a full reducer style, but with joins instead of semijoins
     let mut joins: Vec<NaturalJoin> = Vec::new();
-    
+
     // bottom up traversal of the join tree to build first joins of the reducer
-    post_order_apply(join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
+    post_order_apply(&join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
         // take the node from the join tree and find its parent
         let parent = join_tree
             .neighbors_directed(node, petgraph::Direction::Incoming)
@@ -357,6 +360,12 @@ pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: &mut DataBase
     for join in &joins {
         println!("{}", join);
     }
+
+    // perform the joins
+    for join in joins {
+        naturaljoin(join, database, query.head.clone());
+    }
+
 }
 
 #[allow(dead_code)]

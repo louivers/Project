@@ -18,10 +18,11 @@ use crate::examples_testing::full_reducer_test::full_reducer_test;
 use crate::examples_testing::yannakakis_test::yannakakis_test;
 
 fn main() {
-    join_tree_test();
+    //join_tree_test();
     //order_test();
     //full_reducer_test();
     //globally_consistent_db();
     // naturaljoin_test();
     // loader_test();
+    yannakakis_test()
 }
