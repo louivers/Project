@@ -411,18 +411,18 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
     
 }
 
-pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyprojections: Vec<Atom>) {
+pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, projectionattributes: Vec<String>) {
     // find the relation with the same name and arity as the left child of the naturaljoin
     let mut left_relation = None;
     for relation in &database.relations {
-        if relation.name == naturaljoin.left.relation_name && relation.arity == naturaljoin.left.terms.len() {
+        if relation.name == naturaljoin.left.relation_name {
             left_relation = Some(relation);
         }
     }
     // find the relation with the same name and arity as the right child of the naturaljoin
     let mut right_relation = None;
     for relation in &database.relations {
-        if relation.name == naturaljoin.right.relation_name && relation.arity == naturaljoin.right.terms.len() {
+        if relation.name == naturaljoin.right.relation_name {
             right_relation = Some(relation);
         }
     }
@@ -444,12 +444,6 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
         return;
     }
 
-    // get the relationnames of the early projections
-    let mut earlyprojection_relation_names = Vec::new();
-    for atom in &earlyprojections {
-        earlyprojection_relation_names.push(atom.relation_name.to_owned());
-    }
-
     // compute total projection
     // the totalpojection is F ∪ (X ∩ E) for (E ⋈ F) with F parent of E
     let mut totalprojection: Vec<String> = Vec::new();
@@ -462,10 +456,10 @@ pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyproje
     for attribute in &right_relation.unwrap().attributes {
         totalprojection.push(attribute.to_owned());
     }
-    // add the intersection of the early projection and the left relation to the total projection
+    // add the intersection of the projectionattributes and the left relation to the total projection
     for attribute in &left_relation.unwrap().attributes {
-        if earlyprojection_relation_names.contains(&naturaljoin.left.relation_name) {
-            if !totalprojection.contains(&attribute.to_owned()) {
+        if projectionattributes.contains(attribute) {
+            if !totalprojection.contains(attribute) {
                 totalprojection.push(attribute.to_owned());
                 extraprojection.push(attribute.to_owned());
             }
