@@ -102,7 +102,7 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join, &mut db, attributes.clone());
+    naturaljoin(&join, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");
@@ -126,7 +126,7 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join2, &mut db, attributes.clone());
+    naturaljoin(&join2, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");
@@ -150,7 +150,7 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join3, &mut db, attributes.clone());
+    naturaljoin(&join3, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");
@@ -174,7 +174,7 @@ pub fn naturaljoin_test() {
     println!("{}", db);
     
     // try natural join
-    naturaljoin(join4, &mut db, attributes.clone());
+    naturaljoin(&join4, &mut db, attributes.clone());
 
     // print the database
     println!("Database after natural join:");

@@ -1,4 +1,4 @@
-use crate::models::query::{Query, DataBase, NaturalJoin};
+use crate::models::query::{Query, DataBase, NaturalJoin, Term};
 use crate::algorithms::helper::{find_root, post_order_apply};
 use crate::algorithms::join_tree::generate_join_tree;
 use crate::algorithms::full_reducer::globally_consistent_database;
@@ -44,9 +44,39 @@ pub fn yannakakis(query:Query, database: &mut DataBase) {
         println!("{}", join);
     }
 
+    
+    // find the attributes that the variables in the head of the query are bound to
+    let mut projectionattributes: Vec<String> = Vec::new();
+    // look at all the variables in the head of the query
+    for var in &query.head{
+        // look at all the atoms in the body of the query
+        for atom in &query.body {
+            // look at all the terms in the atom
+            for term in &atom.terms {
+                // if the term is the variable we are looking at
+                if term == &Term::Variable(var.to_string()) {
+                    // find the index of the term in the atom
+                    let mut index = 0;
+                    for i in 0..atom.terms.len() {
+                        if &atom.terms[i] == term {
+                            index = i;
+                            break;
+                        }
+                    }
+                    // add the attribute at that index from the right relation to the projection attributes
+                    for relation in &database.relations {
+                        if relation.name == atom.relation_name {
+                            projectionattributes.push(relation.attributes[index].to_owned());
+                        }
+                    }
+
+                }
+            }
+        }
+
     // perform the joins
-    for join in joins {
-        naturaljoin(join, database, query.head.clone());
+    for join in &joins {
+        naturaljoin(join, database, projectionattributes.clone());
     }
 
-}
+}}
