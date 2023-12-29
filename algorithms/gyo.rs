@@ -32,7 +32,7 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
 
     let idx_ear = join_tree.add_node(first_ear.0.unwrap().to_owned());
     let idx_witness = join_tree.add_node(first_ear.1.unwrap().to_owned());
-    join_tree.add_edge(idx_ear, idx_witness, 0);
+    join_tree.add_edge(idx_witness, idx_ear, 0);
     let mut last_ear_idx = idx_ear;
     // keep adding nodes to the join tree until there are no atoms left
     while my_atoms.len() != 0 {
@@ -60,7 +60,6 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
             my_atoms = remove_atom(&my_atoms, ear.0.unwrap());
         // if the ear has a witness, add the witness and the ear to the join tree with an edge from witness to ear
         } else {
-            let new_atoms = remove_atom(&my_atoms, ear.1.unwrap());
             let mut idx_ear = None;
             let mut idx_witness = None;
             // check if the witness and ear are already in the join tree
@@ -80,8 +79,9 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
                 idx_witness = Some(join_tree.add_node(ear.1.unwrap().to_owned()));
             }
             // add edge from witness to ear
-            join_tree.add_edge(idx_ear.unwrap(), idx_witness.unwrap(), 0);
-            my_atoms = new_atoms;
+            join_tree.add_edge(idx_witness.unwrap(), idx_ear.unwrap(), 0);
+            last_ear_idx = idx_ear.unwrap();
+            my_atoms = remove_atom(&my_atoms, ear.0.unwrap());
         }
     }
     return Some(join_tree);
