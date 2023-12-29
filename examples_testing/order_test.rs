@@ -1,5 +1,5 @@
 use crate::models::query::{Atom, Term};
-use crate::algorithms::gyo::{generate_join_tree, find_root, pre_order_apply, post_order_apply};
+use crate::algorithms::gyo::{find_root, pre_order_apply, post_order_apply, new_join_tree};
 use petgraph::graph::NodeIndex;
 
 #[allow(dead_code)]
@@ -33,7 +33,7 @@ pub fn order_test() {
         head: vec![String::from("x")],
         body: my_body,
     };
-    let join_tree = generate_join_tree(&my_query.body).unwrap();
+    let join_tree = new_join_tree(&my_query.body).unwrap();
     let root = find_root(&join_tree).unwrap();
     
     post_order_apply(&join_tree, NodeIndex::new(root), &mut |join_tree, node| {

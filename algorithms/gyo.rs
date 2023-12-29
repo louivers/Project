@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, self, };
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, };
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
@@ -376,7 +376,7 @@ pub fn pre_order_apply<F>(
 #[allow(unused_variables)]
 pub fn yannakakis(query:Query, database: &mut DataBase) {
     // build a join tree from the query
-    let join_tree = generate_join_tree(&query.body).unwrap();
+    let join_tree = new_join_tree(&query.body).unwrap();
 
     // find a root in the join tree
     let root = find_root(&join_tree).unwrap();
@@ -433,14 +433,14 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
     // find the relation with the same name and arity as the left child of the semijoin
     let mut left_relation = None;
     for relation in &database.relations {
-        if relation.name == semij.left.relation_name && relation.arity == semij.left.terms.len() {
+        if relation.name == semij.left.relation_name {
             left_relation = Some(relation);
         }
     }
     // find the relation with the same name and arity as the right child of the semijoin
     let mut right_relation = None;
     for relation in &database.relations {
-        if relation.name == semij.right.relation_name && relation.arity == semij.right.terms.len() {
+        if relation.name == semij.right.relation_name {
             right_relation = Some(relation);
         }
     }

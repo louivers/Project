@@ -1,6 +1,6 @@
 use std::vec;
 
-use crate::{models::query::{Relation, ConstantTypes, self}, algorithms::gyo::{yannakakis, generate_join_tree}};
+use crate::{models::query::{Relation, ConstantTypes, self}, algorithms::gyo::yannakakis};
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
@@ -54,26 +54,26 @@ pub fn yannakakis_test() {
 
     // make a query
     let r1_atoms = vec![
-        query::Term::Variable(String::from("A")),
-        query::Term::Variable(String::from("B")),
-        query::Term::Variable(String::from("C")),
+        query::Term::Variable(String::from("Q")),
+        query::Term::Variable(String::from("X")),
+        query::Term::Variable(String::from("Z")),
     ];
     let r2_atoms = vec![
-        query::Term::Variable(String::from("B")),
-        query::Term::Variable(String::from("C")),
-        query::Term::Variable(String::from("D")),
+        query::Term::Variable(String::from("X")),
+        query::Term::Variable(String::from("Z")),
+        query::Term::Variable(String::from("Y")),
     ];
     let r3_atoms = vec![
-        query::Term::Variable(String::from("B")),
+        query::Term::Variable(String::from("X")),
         query::Term::Variable(String::from("F")),
     ];
     let r4_atoms = vec![
-        query::Term::Variable(String::from("C")),
-        query::Term::Variable(String::from("D")),
+        query::Term::Variable(String::from("Z")),
+        query::Term::Variable(String::from("Y")),
         query::Term::Variable(String::from("E")),
     ];
     let r5_atoms = vec![
-        query::Term::Variable(String::from("D")),
+        query::Term::Variable(String::from("Y")),
         query::Term::Variable(String::from("E")),
         query::Term::Variable(String::from("G")),
     ];
@@ -100,9 +100,14 @@ pub fn yannakakis_test() {
         },
     ];
 
-    let join_tree = new_join_tree(&my_body).unwrap();
-    println!("THIS IS THE JOIN TREE");
-    println!("{:#?}", join_tree);
-    yannakakis(&join_tree,  &mut db);
+    let query = query::Query {
+        head: vec![String::from("A"), String::from("G")],
+        body: my_body.clone(),
+    };
+
+    yannakakis(query, &mut db);
+
+    // print db 
+    println!("{}", db)
     
 }
