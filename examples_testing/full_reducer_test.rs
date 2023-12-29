@@ -1,5 +1,6 @@
 use crate::models::query::{Atom, Term};
-use crate::algorithms::gyo::{ build_full_reducer_from_tree, new_join_tree};
+use crate::algorithms::full_reducer::build_full_reducer_from_tree;
+use crate::algorithms::join_tree::generate_join_tree;
 
 #[allow(dead_code)]
 pub fn full_reducer_test() {
@@ -32,7 +33,7 @@ pub fn full_reducer_test() {
         head: vec![String::from("x")],
         body: my_body,
     };
-    let join_tree = new_join_tree(&my_query.body).unwrap();
+    let join_tree = generate_join_tree(&my_query.body).unwrap();
     
     let full_reducer = build_full_reducer_from_tree(&join_tree);
     //print the full reducer using the Display trait of SemiJoin

@@ -1,6 +1,7 @@
 use std::vec;
 
-use crate::{models::query::{Relation, ConstantTypes, self}, algorithms::gyo::yannakakis};
+use crate::models::query::{Relation, ConstantTypes, self};
+use crate::algorithms::yannakakis::yannakakis;
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
