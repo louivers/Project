@@ -34,7 +34,7 @@ pub fn join_tree_test() {
         body: my_body,
     };
     // println!("{:#?}", gyo::gyo(&my_query));
-    let join_tree = gyo::generate_join_tree(&my_query.body);
+    let join_tree = gyo::new_join_tree(&my_query.body);
     println!("THIS IS THE JOIN TREE");
     println!("{:#?}", join_tree);
 }

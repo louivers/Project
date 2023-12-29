@@ -1,6 +1,6 @@
 use std::vec;
 
-use crate::{models::query::{Relation, ConstantTypes, self, NaturalJoin}, algorithms::gyo::{yannakakis, generate_join_tree}};
+use crate::{models::query::{Relation, ConstantTypes, self, NaturalJoin}, algorithms::gyo::{yannakakis, generate_join_tree, new_join_tree}};
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {
@@ -100,8 +100,9 @@ pub fn yannakakis_test() {
         },
     ];
 
-    let join_tree = generate_join_tree(&my_body).unwrap();
-    println!("{:?}", join_tree);
+    let join_tree = new_join_tree(&my_body).unwrap();
+    println!("THIS IS THE JOIN TREE");
+    println!("{:#?}", join_tree);
     yannakakis(&join_tree,  &mut db);
     
 }

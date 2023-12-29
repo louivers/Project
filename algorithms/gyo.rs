@@ -1,5 +1,5 @@
 use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, };
-use petgraph::{Directed, Graph};
+use petgraph::{Directed, Graph, graph::Node};
 // use crate::models::join_tree::JoinTree;
 
 // returns true if the given query is acyclic. False otherwise.
@@ -15,6 +15,56 @@ pub fn gyo(q: &Query) -> bool {
         }
     }
     return true;
+}
+
+pub fn gyo_return_steps(q: &Query) -> (bool, Vec<(Atom, Atom)>) {
+    let mut atoms = q.body.clone();
+    let mut steps = Vec::new();
+    while atoms.len() != 1 {
+        let atoms_clone = atoms.clone(); // Add this line to create a longer lived value
+        let ear = find_ear(&atoms_clone);
+        if ear.0.is_none() {
+            return (false, steps);
+        } else {
+            atoms = remove_atom(&atoms, ear.0.unwrap());
+            steps.push((ear.0.unwrap().to_owned(), ear.1.unwrap().to_owned()));
+        }
+    }
+    return (true, steps);
+}
+
+pub fn new_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>> {
+    let gyo_res = gyo_return_steps(&Query{head: Vec::new(), body: atoms.to_vec()});
+    if gyo_res.0 {
+        let steps = gyo_res.1;
+        let mut join_tree = Graph::<Atom, u8, Directed>::new();
+        for step in steps {
+            let mut idx_ear = None;
+            let mut idx_witness = None;
+            // check if the witness and ear are already in the join tree
+            for node in join_tree.node_indices() {
+                if join_tree[node].same_vars(&step.0) {
+                    idx_ear = Some(node);
+                }
+                if join_tree[node].same_vars(&step.1) {
+                    idx_witness = Some(node);
+                }
+            }
+            // if not, add them
+            if idx_ear == None {
+                idx_ear = Some(join_tree.add_node(step.0.to_owned()));
+            }
+            if idx_witness == None {
+                idx_witness = Some(join_tree.add_node(step.1.to_owned()));
+            }
+            // add edge from witness to ear
+            join_tree.add_edge(idx_witness.unwrap(), idx_ear.unwrap(), 0);
+        }
+        return Some(join_tree);
+
+    }
+    return None;
+        
 }
 
 // generates a graph representing the join tree if the query is acyclic.
@@ -46,12 +96,13 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
             // check if the ear is already in the join tree
             let mut idx_ear = None;
             for node in join_tree.node_indices() {
-                if join_tree[node].same_vars(ear.0.unwrap()) {
+                if join_tree[node].same_vars(&ear.0.unwrap()) {
                     idx_ear = Some(node);
                 }
             }
             // if not, add it to the join tree
             if idx_ear == None {
+                print!("ear not in join tree");
                 idx_ear = Some(join_tree.add_node(ear.0.unwrap().to_owned()));
             }
             // add an edge from the last ear to the current ear
