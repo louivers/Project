@@ -1,5 +1,7 @@
 use std::fmt;
 
+use arrow::{record_batch::RecordBatch, array::ArrayRef, datatypes::DataType};
+
 #[derive(Debug)]
 pub struct Query {
     pub head: Vec<String>,
@@ -17,7 +19,8 @@ pub struct Atom {
 pub enum ConstantTypes {
     Utf8(String),
     Float(f64),
-    Int(i32),
+    Int(i64),
+    Null,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -99,5 +102,64 @@ pub struct Relation{
     pub arity: usize,
     pub attributes: Vec<String>,
     pub tuples: Vec<Vec<ConstantTypes>>,
+}
 
+impl Relation {
+    pub fn from_record_batch(batch: RecordBatch, name: String) -> Self {
+        let schema = batch.schema();
+        let fields = schema.fields();
+        let name = name;
+        let arity = fields.len();
+        let attributes: Vec<String> = fields.iter().map(|f| f.name().clone()).collect();
+        let columns: Vec<&ArrayRef> = batch.columns().iter().collect();
+        let column_data_types: Vec<DataType> = columns.iter().map(|c| c.data_type().clone()).collect();
+        let num_rows = batch.num_rows();
+        let mut tuple: Vec<ConstantTypes> = Vec::new();
+        for row_idx in 0..num_rows {            
+            for col_idx in 0..arity {
+                let col = columns[col_idx];
+                let data_type = &column_data_types[col_idx];
+                match data_type {
+                    DataType::Utf8 => {
+                        let string_column = col.as_any().downcast_ref::<arrow::array::StringArray>().unwrap();
+                        let value = string_column.value(row_idx);
+                        tuple.push(ConstantTypes::Utf8(value.to_string()));
+                    },
+                    DataType::Float64 => {
+                        let float_column = col.as_any().downcast_ref::<arrow::array::Float64Array>().unwrap();
+                        let value = float_column.value(row_idx);
+                        tuple.push(ConstantTypes::Float(value));
+                    },
+                    DataType::Int64 => {
+                        let int_column = col.as_any().downcast_ref::<arrow::array::Int64Array>().unwrap();
+                        let value = int_column.value(row_idx);
+                        tuple.push(ConstantTypes::Int(value));
+                    },
+                    DataType::Null => {
+                        tuple.push(ConstantTypes::Null);
+                    },
+                    _ => panic!("Unsupported data type"),
+                }
+            }
+        }
+        return Relation{
+            name: name.clone(),
+            arity: arity,
+            attributes: attributes.clone(),
+            tuples: vec![tuple],
+        };
+    }
+}
+
+impl DataBase {
+    pub fn from_record_batches(batch: Vec<RecordBatch>, names: Vec<String>) -> DataBase {
+        let mut tuples: Vec<Relation> = Vec::new();
+        for i in 0..batch.len() {
+            let relation = Relation::from_record_batch(batch[i].clone(), names[i].clone());
+            tuples.push(relation);
+        }
+        return DataBase{
+            relations: tuples,
+        };
+    }
 }

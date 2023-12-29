@@ -1,6 +1,8 @@
 mod algorithms;
 mod models;
 mod examples_testing;
+mod util;
+use examples_testing::database_loader_test::loader_test;
 #[allow(unused_imports)]
 use examples_testing::globally_consistent_db::globally_consistent_db;
 use examples_testing::naturaljoin_test::naturaljoin_test;
@@ -16,5 +18,6 @@ fn main() {
     //order_test();
     //full_reducer_test();
     //globally_consistent_db();
-    naturaljoin_test();
+    // naturaljoin_test();
+    loader_test();
 }
