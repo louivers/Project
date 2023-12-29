@@ -46,7 +46,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         head: vec![],
         body: vec![
             Atom {
-                relation_name: String::from("Beers"),
+                relation_name: String::from("beers"),
                 terms: vec![
                     Term::Variable(String::from("u1")),
                     Term::Variable(String::from("x")),
@@ -59,7 +59,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Styles"),
+                relation_name: String::from("styles"),
                 terms: vec![
                     Term::Variable(String::from("u6")),
                     Term::Variable(String::from("z")),
@@ -67,14 +67,14 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Categories"),
+                relation_name: String::from("categories"),
                 terms: vec![
                     Term::Variable(String::from("z")),
                     Term::Variable(String::from("u7")),
                 ],
             },
             Atom {
-                relation_name: String::from("Locations"),
+                relation_name: String::from("locations"),
                 terms: vec![
                     Term::Variable(String::from("u8")),
                     Term::Variable(String::from("x")),
@@ -84,7 +84,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Breweries"),
+                relation_name: String::from("breweries"),
                 terms: vec![
                     Term::Variable(String::from("x")),
                     Term::Variable(String::from("u12")),
@@ -109,7 +109,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         ],
         body: vec![
             Atom {
-                relation_name: String::from("Breweries"),
+                relation_name: String::from("breweries"),
                 terms: vec![
                     Term::Variable(String::from("w")),
                     Term::Variable(String::from("x")),
@@ -125,7 +125,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Locations"),
+                relation_name: String::from("locations"),
                 terms: vec![
                     Term::Variable(String::from("u9")),
                     Term::Variable(String::from("w")),
@@ -144,7 +144,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         ],
         body: vec![
             Atom {
-                relation_name: String::from("Beers"),
+                relation_name: String::from("beers"),
                 terms: vec![
                     Term::Variable(String::from("u1")),
                     Term::Variable(String::from("u2")),
@@ -157,7 +157,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Styles"),
+                relation_name: String::from("styles"),
                 terms: vec![
                     Term::Variable(String::from("u7")),
                     Term::Variable(String::from("y")),
@@ -165,7 +165,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Categories"),
+                relation_name: String::from("categories"),
                 terms: vec![
                     Term::Variable(String::from("y")),
                     Term::Variable(String::from("z")),
@@ -182,7 +182,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         ],
         body: vec![
             Atom {
-                relation_name: String::from("Beers"),
+                relation_name: String::from("beers"),
                 terms: vec![
                     Term::Variable(String::from("u1")),
                     Term::Variable(String::from("v")),
@@ -195,7 +195,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Locations"),
+                relation_name: String::from("locations"),
                 terms: vec![
                     Term::Variable(String::from("u4")),
                     Term::Variable(String::from("v")),
@@ -215,7 +215,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
         ],
         body: vec![
             Atom {
-                relation_name: String::from("Beers"),
+                relation_name: String::from("beers"),
                 terms: vec![
                     Term::Variable(String::from("u1")),
                     Term::Variable(String::from("x")),
@@ -228,7 +228,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Styles"),
+                relation_name: String::from("styles"),
                 terms: vec![
                     Term::Variable(String::from("u6")),
                     Term::Variable(String::from("z")),
@@ -236,14 +236,14 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Categories"),
+                relation_name: String::from("categories"),
                 terms: vec![
                     Term::Variable(String::from("z")),
                     Term::Variable(String::from("w")),
                 ],
             },
             Atom {
-                relation_name: String::from("Locations"),
+                relation_name: String::from("locations"),
                 terms: vec![
                     Term::Variable(String::from("u8")),
                     Term::Variable(String::from("x")),
@@ -253,7 +253,7 @@ pub fn test_queries() -> Result<(), Box<dyn Error>> {
                 ],
             },
             Atom {
-                relation_name: String::from("Breweries"),
+                relation_name: String::from("breweries"),
                 terms: vec![
                     Term::Variable(String::from("x")),
                     Term::Variable(String::from("u12")),
