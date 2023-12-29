@@ -1,6 +1,4 @@
-use crate::models::query::{Relation, ConstantTypes, self};
-use crate::algorithms::gyo::{generate_join_tree, gyo, build_full_reducer_from_tree, find_root};
-use crate::algorithms::gyo::globally_consistent_database;
+use crate::{models::query::{Relation, ConstantTypes, self}, algorithms::gyo::naturaljoin};
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i32>) -> Vec<ConstantTypes> {
@@ -8,9 +6,7 @@ fn to_constant_types_vec(ints: Vec<i32>) -> Vec<ConstantTypes> {
 }
 
 #[allow(dead_code)]
-pub fn globally_consistent_db() {
-    // built a small database example based on slides of Zeyuan Hu
-    // https://zhu45.org/wcoja-s21.pdf
+pub fn naturaljoin_test() {
     let r1 = Relation {
         name: "R1".to_string(),
         arity: 2,
@@ -45,8 +41,6 @@ pub fn globally_consistent_db() {
     let mut db = crate::models::query::DataBase {
         relations: vec![r1, r2, r3, r4],
     };
-
-    print!("{}", db);
 
     // make a query
     let r1_atoms = vec![
@@ -86,34 +80,8 @@ pub fn globally_consistent_db() {
         head: vec![String::from("A1"), String::from("A2")],
         body: my_body,
     };
+
+    //naturaljoin();
+
     
-    println!("{:#?}", my_query);
-
-    // test acyclic
-    print!("acyclic: ");
-    print!("{}", gyo(&my_query));
-
-    // make a join tree
-    let join_tree = generate_join_tree(&my_query.body).unwrap();
-
-    let root = find_root(&join_tree).unwrap();
-
-    print!("root: ");
-    println!("{}", root);
-
-    print!("join tree: ");
-    println!("{:#?}", join_tree);
-
-    let full_reducer = build_full_reducer_from_tree(&join_tree);
-
-    //print the full reducer using the Display trait of SemiJoin
-    for semijoin in full_reducer {
-        println!("{}", semijoin);
-    }
-
-    // make the database globally consistent
-    globally_consistent_database(&mut db, &join_tree);
-
-    print!("{}", db)
-
 }

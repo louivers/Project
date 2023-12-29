@@ -1,4 +1,4 @@
-use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, };
+use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, ConstantTypes, NaturalJoin, };
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
@@ -379,6 +379,91 @@ pub fn semijoin(semij: &SemiJoin, database: &mut DataBase) {
         if relation.name == new_left_relation.name && relation.arity == new_left_relation.arity {
             *relation = new_left_relation;
             break;
+        }
+    }
+
+    
+}
+
+pub fn naturaljoin(naturaljoin: NaturalJoin, database: &mut DataBase, earlyprojections: Vec<Atom>) {
+    // find the relation with the same name and arity as the left child of the naturaljoin
+    let mut left_relation = None;
+    for relation in &database.relations {
+        if relation.name == naturaljoin.left.relation_name && relation.arity == naturaljoin.left.terms.len() {
+            left_relation = Some(relation);
+        }
+    }
+    // find the relation with the same name and arity as the right child of the naturaljoin
+    let mut right_relation = None;
+    for relation in &database.relations {
+        if relation.name == naturaljoin.right.relation_name && relation.arity == naturaljoin.right.terms.len() {
+            right_relation = Some(relation);
+        }
+    }
+    // if one of the relations is not found, return
+    if left_relation.is_none() || right_relation.is_none() {
+        return;
+    }
+    // find indexes of common attributes of the two relations
+    let mut common_attributes = Vec::new();
+    for i in 0..left_relation.unwrap().arity {
+        for j in 0..right_relation.unwrap().arity {
+            if left_relation.unwrap().attributes[i] == right_relation.unwrap().attributes[j] {
+                common_attributes.push((i, j));
+            }
+        }
+    }
+    // if there are no common attributes, return
+    if common_attributes.len() == 0 {
+        return;
+    }
+
+    // get the relationnames of the early projections
+    let mut earlyprojection_relation_names = Vec::new();
+    for atom in &earlyprojections {
+        earlyprojection_relation_names.push(atom.relation_name.to_owned());
+    }
+
+    // total projection
+    let mut old_attributes: Vec<String> = Vec::new();
+    let mut new_attributes: Vec<String> = Vec::new();
+    // add the attributes of the left relation to the old relation attributes
+    old_attributes.extend(left_relation.unwrap().attributes.iter().cloned());
+
+    // add the attributes of the right relation to the new relation attributes
+    for attribute in &right_relation.unwrap().attributes {
+        if !old_attributes.contains(&attribute) && 
+           earlyprojection_relation_names.contains(&attribute) {
+            new_attributes.push(attribute.to_owned());
+        }
+    }
+    // if the new relation has the same attributes as the old one, nothing changes
+    if old_attributes.len() == new_attributes.len() {
+        return;
+    }
+    // make the new relation
+    let mut new_tuples: Vec<Vec<ConstantTypes>> = Vec::new();
+    for left_tuple in &left_relation.unwrap().tuples {
+        for right_tuple in &right_relation.unwrap().tuples {
+            let mut common = true;
+            for (i, j) in &common_attributes {
+                if left_tuple[*i] != right_tuple[*j] {
+                    common = false;
+                    break;
+                }
+            }
+            if common {
+                let mut new_tuple = Vec::new();
+                // add the old attributes of the left relation to the new tuple
+                for attribute in &left_relation.unwrap().attributes {
+                    new_tuple.push(left_tuple[old_attributes.iter().position(|x| x == attribute).unwrap()].to_owned());
+                }
+                // add the new attributes of the right relation to the new tuple
+                for attribute in &new_attributes {
+                    new_tuple.push(right_tuple[right_relation.unwrap().attributes.iter().position(|x| x == attribute).unwrap()].to_owned());
+                }
+                new_tuples.push(new_tuple);
+            }
         }
     }
 
