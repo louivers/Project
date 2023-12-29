@@ -1,6 +1,8 @@
 use crate::models::query::{Relation, ConstantTypes, self};
-use crate::algorithms::gyo::{generate_join_tree, gyo, build_full_reducer_from_tree, find_root};
-use crate::algorithms::gyo::globally_consistent_database;
+use crate::algorithms::gyo::gyo;
+use crate::algorithms::full_reducer::{globally_consistent_database, build_full_reducer_from_tree};
+use crate::algorithms::join_tree::generate_join_tree;
+use crate::algorithms::helper::find_root;
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {

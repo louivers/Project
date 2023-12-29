@@ -1,5 +1,6 @@
 use crate::models::query::{Atom, Term};
-use crate::algorithms::gyo::{generate_join_tree, build_full_reducer_from_tree};
+use crate::algorithms::full_reducer::build_full_reducer_from_tree;
+use crate::algorithms::join_tree::generate_join_tree;
 
 #[allow(dead_code)]
 pub fn full_reducer_test() {

@@ -1,6 +1,7 @@
 use std::vec;
 
-use crate::{models::query::{Relation, ConstantTypes, self, NaturalJoin}, algorithms::gyo::naturaljoin};
+use crate::models::query::{Relation, ConstantTypes, self, NaturalJoin};
+use crate::algorithms::joins::naturaljoin;
 
 #[allow(dead_code)]
 fn to_constant_types_vec(ints: Vec<i64>) -> Vec<ConstantTypes> {

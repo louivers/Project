@@ -1,5 +1,6 @@
 use crate::models::query::{Atom, Term};
-use crate::algorithms::gyo::{generate_join_tree, find_root, pre_order_apply, post_order_apply};
+use crate::algorithms::helper::{find_root, pre_order_apply, post_order_apply};
+use crate::algorithms::join_tree::generate_join_tree;
 use petgraph::graph::NodeIndex;
 
 #[allow(dead_code)]
