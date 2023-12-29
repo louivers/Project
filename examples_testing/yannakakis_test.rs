@@ -106,9 +106,11 @@ pub fn yannakakis_test() {
         body: my_body.clone(),
     };
 
-    yannakakis(query, &mut db);
+    let relation = yannakakis(query, &mut db);
 
-    // print db 
-    println!("{}", db)
+    // print the relation
+    println!("Relation after yannakakis:");
+    println!("{}", relation);
+    
     
 }

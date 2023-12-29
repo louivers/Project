@@ -104,6 +104,25 @@ pub struct Relation{
     pub tuples: Vec<Vec<ConstantTypes>>,
 }
 
+impl fmt::Display for Relation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}\n", self.name)?;
+        // write attributes
+        write!(f, "\t")?;
+        for attribute in &self.attributes {
+            write!(f, "{} ", attribute)?;
+        }
+        write!(f, "\n")?;
+        for tuple in &self.tuples {
+            write!(f, "\t")?;
+            for term in tuple {
+                write!(f, "{:?} ", term)?;
+            }
+            write!(f, "\n")?;
+        }
+        Ok(())
+    }
+}
 impl Relation {
     #[allow(dead_code)]
     pub fn from_record_batch(batch: RecordBatch, name: String) -> Self {
