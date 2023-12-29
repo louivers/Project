@@ -2,7 +2,7 @@ use crate::models::query::{Atom, Query, SemiJoin, Term, DataBase, Relation, Cons
 use petgraph::{Directed, Graph};
 // use crate::models::join_tree::JoinTree;
 
-// Returns true if the given query is acyclic. False otherwise.
+// returns true if the given query is acyclic. False otherwise.
 #[allow(dead_code)]
 pub fn gyo(q: &Query) -> bool {
     let mut atoms = q.body.clone();
@@ -17,30 +17,53 @@ pub fn gyo(q: &Query) -> bool {
     return true;
 }
 
+// generates a graph representing the join tree if the query is acyclic.
 #[allow(dead_code)]
 pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>> {
+    // if the query is not acyclic, return None
     let first_ear = find_ear(&atoms);
     println!("first ear: {:?}", first_ear);
     if first_ear.0.is_none() {
         return None;
     }
+    // if the query is acyclic, generate the join tree with the first ear as the root
     let mut my_atoms = remove_atom(&atoms, first_ear.0.unwrap());
     let mut join_tree = Graph::<Atom, u8, Directed>::new();
 
     let idx_ear = join_tree.add_node(first_ear.0.unwrap().to_owned());
     let idx_witness = join_tree.add_node(first_ear.1.unwrap().to_owned());
     join_tree.add_edge(idx_ear, idx_witness, 0);
+    let mut last_ear_idx = idx_ear;
+    // keep adding nodes to the join tree until there are no atoms left
     while my_atoms.len() != 0 {
         let ear = find_ear(&my_atoms);
         println!("ear: {:?}", ear);
+        // if we can't find an ear, the query is not acyclic.
         if ear.0.is_none() {
             return None;
+        // if the ear doesn't have a witness, add the ear to the last ear
         } else if ear.1.is_none() {
-            return Some(join_tree);
+            // check if the ear is already in the join tree
+            let mut idx_ear = None;
+            for node in join_tree.node_indices() {
+                if join_tree[node].same_vars(ear.0.unwrap()) {
+                    idx_ear = Some(node);
+                }
+            }
+            // if not, add it to the join tree
+            if idx_ear == None {
+                idx_ear = Some(join_tree.add_node(ear.0.unwrap().to_owned()));
+            }
+            // add an edge from the last ear to the current ear
+            join_tree.add_edge(last_ear_idx, idx_ear.unwrap(), 0);
+            last_ear_idx = idx_ear.unwrap();
+            my_atoms = remove_atom(&my_atoms, ear.0.unwrap());
+        // if the ear has a witness, add the witness and the ear to the join tree with an edge from witness to ear
         } else {
             let new_atoms = remove_atom(&my_atoms, ear.1.unwrap());
             let mut idx_ear = None;
             let mut idx_witness = None;
+            // check if the witness and ear are already in the join tree
             for node in join_tree.node_indices() {
                 if join_tree[node].same_vars(&ear.0.unwrap()) {
                     idx_ear = Some(node);
@@ -49,12 +72,14 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
                     idx_witness = Some(node);
                 }
             }
+            // if not, add them
             if idx_ear == None {
                 idx_ear = Some(join_tree.add_node(ear.0.unwrap().to_owned()));
             }
             if idx_witness == None {
                 idx_witness = Some(join_tree.add_node(ear.1.unwrap().to_owned()));
             }
+            // add edge from witness to ear
             join_tree.add_edge(idx_ear.unwrap(), idx_witness.unwrap(), 0);
             my_atoms = new_atoms;
         }
@@ -62,6 +87,7 @@ pub fn generate_join_tree(atoms: &Vec<Atom>) -> Option<Graph<Atom, u8, Directed>
     return Some(join_tree);
 }
 
+// removes an atom from a vector of atoms
 fn remove_atom(atoms: &Vec<Atom>, atom: &Atom) -> Vec<Atom> {
     let new_atoms: Vec<Atom> = atoms.to_vec().into_iter().filter(|a| a != atom).collect();
     return new_atoms.to_vec();
