@@ -14,10 +14,10 @@ use crate::examples_testing::join_tree_test::join_tree_test;
 use crate::examples_testing::full_reducer_test::full_reducer_test;
 
 fn main() {
-    //join_tree_test();
+    join_tree_test();
     //order_test();
     //full_reducer_test();
     //globally_consistent_db();
     // naturaljoin_test();
-    loader_test();
+    // loader_test();
 }
