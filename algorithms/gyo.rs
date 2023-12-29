@@ -324,10 +324,15 @@ pub fn pre_order_apply<F>(
 #[allow(dead_code)]
 #[allow(unused_variables)]
 pub fn yannakakis(join_tree: &Graph<Atom, u8, Directed>, database: &mut DataBase) {
+    // find a root in the join tree
     let root = find_root(join_tree).unwrap();
+
+    // build a globally consistent database
     globally_consistent_database(database, join_tree);
+
     // build a full reducer style, but with joins instead of semijoins
     let mut joins: Vec<NaturalJoin> = Vec::new();
+    
     // bottom up traversal of the join tree to build first joins of the reducer
     post_order_apply(join_tree, petgraph::graph::NodeIndex::new(root), &mut |join_tree, node| {
         // take the node from the join tree and find its parent
